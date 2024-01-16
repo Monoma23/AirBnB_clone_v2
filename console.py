@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
+import re
 import sys
 from models.base_model import BaseModel
 from models.__init__ import storage
@@ -114,17 +115,42 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
+        """ Creating an object of any class"""
+        pattern = """(^\w+)((?:\s+\w+=[^\s]+)+)?"""
+        w = re.match(pattern, args)
+        args = [s for s in w.groups() if s] if w else []
+
         if not args:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        className = args[0]
+
+        if className not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
+
+        kwargs = dict()
+        if len(args) > 1:
+            parameterss = args[1].split(" ")
+            parameterss = [prm for prm in parameterss if prm]
+            for prm in parameterss:
+                [name, valuee] = prm.split("=")
+                if valuee[0] == '"' and valuee[-1] == '"':
+                    valuee = valuee[1:-1].replace('_', ' ')
+                elif '.' in valuee:
+                    valuee = float(valuee)
+                else:
+                    valuee = int(valuee)
+                kwargs[name] = valuee
+
+        new_instance = HBNBCommand.classes[className]()
+        
+        for attrName, attrValue in kwargs.items():
+            setattr(new_instance, attrName, attrValue) 
+
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -266,7 +292,7 @@ class HBNBCommand(cmd.Cmd):
         # first determine if kwargs or args
         if '{' in args[2] and '}' in args[2] and type(eval(args[2])) is dict:
             kwargs = eval(args[2])
-            args = []  # reformat kwargs into list, ex: [<name>, <value>, ...]
+            args = []  # reformat kwargs into list, ex: [<name>, <valuee>, ...]
             for k, v in kwargs.items():
                 args.append(k)
                 args.append(v)
@@ -299,18 +325,18 @@ class HBNBCommand(cmd.Cmd):
         for i, att_name in enumerate(args):
             # block only runs on even iterations
             if (i % 2 == 0):
-                att_val = args[i + 1]  # following item is value
+                att_val = args[i + 1]  # following item is valuee
                 if not att_name:  # check for att_name
                     print("** attribute name missing **")
                     return
                 if not att_val:  # check for att_value
-                    print("** value missing **")
+                    print("** valuee missing **")
                     return
                 # type cast as necessary
                 if att_name in HBNBCommand.types:
                     att_val = HBNBCommand.types[att_name](att_val)
 
-                # update dictionary with name, value pair
+                # update dictionary with name, valuee pair
                 new_dict.__dict__.update({att_name: att_val})
 
         new_dict.save()  # save updates to file

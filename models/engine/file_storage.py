@@ -8,9 +8,16 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    def all(self):
-        """Returns a dictionary of models currently in storage"""
-        return FileStorage.__objects
+    def all(self, cls=None):
+        """Returns a dictionary of modelss currently in the storage"""
+        if not cls:
+            return FileStorage.__objects
+        else:
+            Mynewdict = {}
+            for keyy, value in self.__objects.items():
+                if type(value) == cls:
+                    Mynewdict[keyy] = value
+            return Mynewdict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -21,8 +28,8 @@ class FileStorage:
         with open(FileStorage.__file_path, 'w') as f:
             temp = {}
             temp.update(FileStorage.__objects)
-            for key, val in temp.items():
-                temp[key] = val.to_dict()
+            for keyy, val in temp.items():
+                temp[keyy] = val.to_dict()
             json.dump(temp, f)
 
     def reload(self):
@@ -35,6 +42,13 @@ class FileStorage:
         from models.amenity import Amenity
         from models.review import Review
 
+    def delete(self, obj=None):
+        """deleting object from __objects"""
+        if obj:
+            key = obj.__class__.__name__ + '.' + obj.id
+            if key in self.__objects:
+                del self.__objects[key]
+
         classes = {
                     'BaseModel': BaseModel, 'User': User, 'Place': Place,
                     'State': State, 'City': City, 'Amenity': Amenity,
@@ -44,7 +58,7 @@ class FileStorage:
             temp = {}
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
-                for key, val in temp.items():
-                        self.all()[key] = classes[val['__class__']](**val)
+                for keyy, val in temp.items():
+                        self.all()[keyy] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
