@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""c'est la module pour la classe user"""
+"""This module defines a class User"""
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
@@ -7,7 +7,7 @@ from os import getenv
 
 
 class User(BaseModel, Base):
-    """ce sont les attributes définis pour la classe user"""
+    """class attributes of user class"""
     __tablename__ = "users"
     email = Column(String(128), nullable=False)
     password = Column(String(128), nullable=False)
