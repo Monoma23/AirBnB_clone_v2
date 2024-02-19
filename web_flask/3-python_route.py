@@ -9,15 +9,18 @@ def hello_hbnb():
     """Displaying Hello HBNB!"""
     return "Hello HBNB!"
 
+
 @app.route('/hbnb', strict_slashes=False)
 def only_hbnb():
     """Displaying Hello HBNB!"""
     return "HBNB"
 
+
 @app.route('/c/<text>', strict_slashes=False)
 def C_isfun(text):
     """Displaying Hello HBNB!"""
     return "C" + text.replace('_', ' ')
+
 
 @app.route('/python/<text>', strict_slashes=False)
 def py_iscool(text='is cool'):
